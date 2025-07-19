@@ -1,0 +1,25 @@
+{
+  "name": "test-winnin",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/luanprestes/test-winnin.git",
+  "author": "Luan Prestes <luanprestesdasilva@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^6.12.0",
+    "apollo-server": "^3.13.0",
+    "graphql": "^16.11.0",
+    "zod": "^4.0.5"
+  },
+  "devDependencies": {
+    "@types/graphql": "^14.5.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.15",
+    "jest": "^30.0.4",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.12.0",
+    "ts-jest": "^29.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
