@@ -1,7 +1,7 @@
-import { Order } from "../entities/Order";
+import { Order, CreateOrderProps } from "../entities/Order";
 
 export interface OrderRepository {
-  create(order: Order): Promise<Order>;
+  create(data: CreateOrderProps): Promise<Order>;
   findById(id: number): Promise<Order | null>;
   findAll(): Promise<Order[]>;
 }

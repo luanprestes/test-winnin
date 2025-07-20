@@ -7,3 +7,13 @@ export type Order = {
   createdAt: Date;
   items: OrderItem[];
 };
+
+export type CreateOrderProps = {
+  userId: number;
+  total: number;
+  items: {
+    productId: number;
+    quantity: number;
+    price: number;
+  }[];
+};
