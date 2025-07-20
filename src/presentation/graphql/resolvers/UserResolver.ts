@@ -16,4 +16,14 @@ export const UserResolver = {
       return useCases.createUser.execute(args.input);
     },
   },
+
+  User: {
+    orders: async (
+      parent: { id: number },
+      _: unknown,
+      { useCases }: Context
+    ) => {
+      return useCases.findOrdersByUserId.execute(parent.id);
+    },
+  },
 };

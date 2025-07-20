@@ -114,4 +114,41 @@ export class PrismaOrderRepository implements OrderRepository {
       })),
     }));
   }
+
+  async findItemsByOrderId(orderId: number): Promise<OrderItem[]> {
+    const items = await prisma.orderItem.findMany({
+      where: { orderId },
+    });
+
+    return items.map((item) => ({
+      id: item.id,
+      orderId: item.orderId,
+      productId: item.productId,
+      quantity: item.quantity,
+      price: item.price.toNumber(),
+    }));
+  }
+
+  async findByUserId(userId: number): Promise<Order[]> {
+    const orders = await prisma.order.findMany({
+      where: { userId },
+      include: {
+        items: true,
+      },
+    });
+
+    return orders.map((order) => ({
+      id: order.id,
+      userId: order.userId,
+      total: order.total.toNumber(),
+      createdAt: order.createdAt,
+      items: order.items.map((item) => ({
+        id: item.id,
+        orderId: item.orderId,
+        productId: item.productId,
+        quantity: item.quantity,
+        price: item.price.toNumber(),
+      })),
+    }));
+  }
 }

@@ -24,6 +24,7 @@ type OrderItem {
 type Order {
   id: Int!
   userId: Int!
+  user: User!
   total: Float!
   createdAt: String!
   items: [OrderItem!]!

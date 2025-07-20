@@ -4,7 +4,10 @@ import { User } from "@/domain/entities/User";
 
 export class PrismaUserRepository implements UserRepository {
   async create(data: { name: string; email: string }): Promise<User> {
-    return prisma.user.create({ data });
+    return prisma.user.create({
+      data,
+      include: { orders: true },
+    });
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -25,5 +28,17 @@ export class PrismaUserRepository implements UserRepository {
         },
       },
     });
+  }
+
+  async findById(id: number): Promise<User | null> {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) return null;
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+    };
   }
 }
