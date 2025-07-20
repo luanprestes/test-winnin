@@ -3,6 +3,8 @@ import { ProductRepository } from "@/domain/repositories/ProductRepository";
 import { CreateOrderInput } from "@/application/dtos/CreateOrderInput";
 import { CreateOrderProps } from "@/domain/entities/Order";
 import { CreateOrderOutput } from "@/application/dtos/CreateOrderOutput";
+import { InsufficientStockError } from "@/application/errors/InsufficientStockError";
+import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
 
 export class CreateOrderUseCase {
   constructor(
@@ -18,9 +20,9 @@ export class CreateOrderUseCase {
     for (let i = 0; i < input.items.length; i++) {
       const product = products[i];
       const item = input.items[i];
-      if (!product) throw new Error(`Product ${item.productId} not found`);
+      if (!product) throw new ProductNotFoundError(item.productId);
       if (product.stock < item.quantity)
-        throw new Error(`Insufficient stock for product ${item.productId}`);
+        throw new InsufficientStockError(item.productId);
     }
 
     for (let i = 0; i < input.items.length; i++) {

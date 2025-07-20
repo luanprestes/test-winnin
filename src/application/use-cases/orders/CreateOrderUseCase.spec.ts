@@ -2,6 +2,8 @@ import { CreateOrderUseCase } from "@/application/use-cases/orders/CreateOrderUs
 import { OrderRepository } from "@/domain/repositories/OrderRepository";
 import { ProductRepository } from "@/domain/repositories/ProductRepository";
 import { CreateOrderInput } from "@/application/dtos/CreateOrderInput";
+import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
+import { InsufficientStockError } from "@/application/errors/InsufficientStockError";
 
 describe("CreateOrderUseCase", () => {
   const mockOrderRepo: jest.Mocked<OrderRepository> = {
@@ -78,7 +80,7 @@ describe("CreateOrderUseCase", () => {
     expect(mockOrderRepo.create).toHaveBeenCalled();
   });
 
-  it("deve lançar erro se produto não existir", async () => {
+  it("deve lançar ProductNotFoundError se produto não existir", async () => {
     const input: CreateOrderInput = {
       userId: 1,
       items: [{ productId: 999, quantity: 1 }],
@@ -86,12 +88,15 @@ describe("CreateOrderUseCase", () => {
 
     mockProductRepo.findById.mockResolvedValue(null);
 
+    await expect(useCase.execute(input)).rejects.toBeInstanceOf(
+      ProductNotFoundError
+    );
     await expect(useCase.execute(input)).rejects.toThrow(
-      "Product 999 not found"
+      "Product with ID 999 not found"
     );
   });
 
-  it("deve lançar erro se não tiver estoque", async () => {
+  it("deve lançar InsufficientStockError se não tiver estoque", async () => {
     const input: CreateOrderInput = {
       userId: 1,
       items: [{ productId: 101, quantity: 10 }],
@@ -105,6 +110,9 @@ describe("CreateOrderUseCase", () => {
       createdAt: new Date(),
     });
 
+    await expect(useCase.execute(input)).rejects.toBeInstanceOf(
+      InsufficientStockError
+    );
     await expect(useCase.execute(input)).rejects.toThrow(
       "Insufficient stock for product 101"
     );
