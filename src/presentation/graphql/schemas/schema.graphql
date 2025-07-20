@@ -19,6 +19,7 @@ type OrderItem {
   productId: Int!
   quantity: Int!
   price: Float!
+  product: Product!
 }
 
 type Order {

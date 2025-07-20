@@ -6,35 +6,49 @@ import { OrderItem } from "@/domain/entities/OrderItem";
 export class PrismaOrderRepository implements OrderRepository {
   async create(order: Order): Promise<Order> {
     return await prisma.$transaction(async (tx) => {
+      const products = await tx.product.findMany({
+        where: {
+          id: { in: order.items.map((item) => item.productId) },
+        },
+      });
+
+      const productMap = new Map(products.map((p) => [p.id, p]));
+
       for (const item of order.items) {
-        const product = await tx.product.findUnique({
-          where: { id: item.productId },
-        });
+        const product = productMap.get(item.productId);
 
         if (!product) {
           throw new Error(`Produto ${item.productId} não encontrado`);
         }
 
-        const updated = await tx.product.updateMany({
-          where: {
-            id: item.productId,
-            stock: { gte: item.quantity },
-          },
-          data: {
-            stock: { decrement: item.quantity },
-          },
-        });
-
-        if (updated.count === 0) {
+        if (product.stock < item.quantity) {
           throw new Error(
             `Estoque insuficiente para o produto ${item.productId}`
           );
         }
-
-        item.price = product.price.toNumber();
       }
 
-      const total = order.items.reduce(
+      await Promise.all(
+        order.items.map((item) =>
+          tx.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: { decrement: item.quantity },
+            },
+          })
+        )
+      );
+
+      const itemsWithPrice = order.items.map((item) => {
+        const product = productMap.get(item.productId)!;
+        return {
+          productId: item.productId,
+          quantity: item.quantity,
+          price: product.price.toNumber(),
+        };
+      });
+
+      const total = itemsWithPrice.reduce(
         (sum, item) => sum + item.price * item.quantity,
         0
       );
@@ -44,11 +58,7 @@ export class PrismaOrderRepository implements OrderRepository {
           userId: order.userId,
           total,
           items: {
-            create: order.items.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              price: item.price,
-            })),
+            create: itemsWithPrice,
           },
         },
         include: {

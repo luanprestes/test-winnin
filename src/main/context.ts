@@ -5,10 +5,9 @@ import { PrismaOrderRepository } from "@/infra/prisma/PrismaOrderRepository";
 import { CreateUserUseCase } from "@/application/use-cases/users/CreateUserUseCase";
 import { ListUsersWithOrdersUseCase } from "@/application/use-cases/users/ListUsersWithOrdersUseCase";
 import { FindUserByIdUseCase } from "@/application/use-cases/users/FindUserByIdUseCase";
-
 import { CreateProductUseCase } from "@/application/use-cases/products/CreateProductUseCase";
 import { ListProductsUseCase } from "@/application/use-cases/products/ListProductsUseCase";
-
+import { FindProductByIdUseCase } from "@/application/use-cases/products/FindProductByIdUseCase";
 import { CreateOrderUseCase } from "@/application/use-cases/orders/CreateOrderUseCase";
 import { FindOrderItemsByOrderIdUseCase } from "@/application/use-cases/orders/FindOrderItemsByOrderIdUseCase";
 import { FindOrdersByUserIdUseCase } from "@/application/use-cases/orders/FindOrdersByUserIdUseCase";
@@ -33,6 +32,7 @@ export function createContext() {
         orderRepository
       ),
       findOrdersByUserId: new FindOrdersByUserIdUseCase(orderRepository),
+      findProductById: new FindProductByIdUseCase(productRepository),
     },
   };
 }
