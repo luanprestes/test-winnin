@@ -1,8 +1,9 @@
-import ts from '@typescript-eslint/eslint-plugin'
-import parser from '@typescript-eslint/parser'
-import prettier from 'eslint-config-prettier'
+const ts = require('@typescript-eslint/eslint-plugin');
+const parser = require('@typescript-eslint/parser');
+const prettier = require('eslint-config-prettier');
 
-export default [
+/** @type {import('eslint').Linter.FlatConfig[]} */
+module.exports = [
   {
     files: ['**/*.ts'],
     languageOptions: {
@@ -17,12 +18,12 @@ export default [
       '@typescript-eslint': ts,
     },
     rules: {
-        ...ts.configs.recommended.rules,
-        '@typescript-eslint/no-explicit-any': 'off',
-        ...prettier.rules,
+      ...ts.configs.recommended.rules,
+      '@typescript-eslint/no-explicit-any': 'off',
+      ...prettier.rules,
     },
   },
   {
     ignores: ['dist', 'node_modules'],
   },
-]
+];
