@@ -11,11 +11,13 @@ import { FindProductByIdUseCase } from "@/application/use-cases/products/FindPro
 import { CreateOrderUseCase } from "@/application/use-cases/orders/CreateOrderUseCase";
 import { FindOrderItemsByOrderIdUseCase } from "@/application/use-cases/orders/FindOrderItemsByOrderIdUseCase";
 import { FindOrdersByUserIdUseCase } from "@/application/use-cases/orders/FindOrdersByUserIdUseCase";
+import { PrismaTransactionAdapter } from "@/infra/prisma/PrismaTransactionAdapter";
 
 export function createContext() {
   const userRepository = new PrismaUserRepository();
   const productRepository = new PrismaProductRepository();
   const orderRepository = new PrismaOrderRepository();
+  const transactional = new PrismaTransactionAdapter();
 
   return {
     useCases: {
@@ -27,7 +29,11 @@ export function createContext() {
       findUserById: new FindUserByIdUseCase(userRepository),
       createProduct: new CreateProductUseCase(productRepository),
       listProducts: new ListProductsUseCase(productRepository),
-      createOrder: new CreateOrderUseCase(orderRepository, productRepository),
+      createOrder: new CreateOrderUseCase(
+        orderRepository,
+        productRepository,
+        transactional
+      ),
       findOrderItemsByOrderId: new FindOrderItemsByOrderIdUseCase(
         orderRepository
       ),

@@ -1,4 +1,5 @@
 import { Context } from "@/main/context";
+import { createUserSchema } from "@/presentation/validators/CreateUserSchema";
 
 export const UserResolver = {
   Query: {
@@ -13,6 +14,14 @@ export const UserResolver = {
       args: { input: { name: string; email: string } },
       { useCases }: Context
     ) => {
+      const result = createUserSchema.safeParse(args.input);
+
+      if (!result.success) {
+        throw new Error(
+          "Invalid input: " + JSON.stringify(result.error.format())
+        );
+      }
+
       return useCases.createUser.execute(args.input);
     },
   },

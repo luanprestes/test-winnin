@@ -61,4 +61,31 @@ export class PrismaProductRepository implements ProductRepository {
       data: { stock: newStock },
     });
   }
+
+  async updateStockIfEnough(
+    productId: number,
+    quantity: number
+  ): Promise<boolean> {
+    const result = await prisma.product.updateMany({
+      where: {
+        id: productId,
+        stock: { gte: quantity },
+      },
+      data: {
+        stock: { decrement: quantity },
+      },
+    });
+
+    return result.count > 0;
+  }
+
+  async findManyByIds(ids: number[]): Promise<Product[]> {
+    const products = await prisma.product.findMany({
+      where: {
+        id: { in: ids },
+      },
+    });
+
+    return products.map(mapToEntity);
+  }
 }

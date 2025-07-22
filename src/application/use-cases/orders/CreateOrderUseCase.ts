@@ -1,66 +1,77 @@
-import { OrderRepository } from "@/domain/repositories/OrderRepository";
-import { ProductRepository } from "@/domain/repositories/ProductRepository";
 import { CreateOrderInput } from "@/application/dtos/CreateOrderInput";
-import { CreateOrderProps } from "@/domain/entities/Order";
 import { CreateOrderOutput } from "@/application/dtos/CreateOrderOutput";
 import { InsufficientStockError } from "@/application/errors/InsufficientStockError";
 import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
+import { Product } from "@/domain/entities/Product";
+import { OrderRepository } from "@/domain/repositories/OrderRepository";
+import { ProductRepository } from "@/domain/repositories/ProductRepository";
+import { Transactional } from "@/domain/repositories/Transactional";
 
 export class CreateOrderUseCase {
   constructor(
-    private orderRepo: OrderRepository,
-    private productRepo: ProductRepository
+    private readonly orderRepo: OrderRepository,
+    private readonly productRepo: ProductRepository,
+    private readonly transactional: Transactional
   ) {}
 
   async execute(input: CreateOrderInput): Promise<CreateOrderOutput> {
-    const products = await Promise.all(
-      input.items.map((item) => this.productRepo.findById(item.productId))
-    );
-
-    for (let i = 0; i < input.items.length; i++) {
-      const product = products[i];
-      const item = input.items[i];
-      if (!product) throw new ProductNotFoundError(item.productId);
-      if (product.stock < item.quantity)
-        throw new InsufficientStockError(item.productId);
-    }
-
-    for (let i = 0; i < input.items.length; i++) {
-      const product = products[i]!;
-      const item = input.items[i];
-      await this.productRepo.updateStock(
-        product.id,
-        product.stock - item.quantity
+    return await this.transactional.runInTransaction(async () => {
+      const products = await this.productRepo.findManyByIds(
+        input.items.map((item) => item.productId)
       );
-    }
 
-    const total = input.items.reduce(
-      (sum, item, i) => sum + products[i]!.price * item.quantity,
-      0
-    );
+      const productMap = new Map(products?.map((p: Product) => [p.id, p]));
 
-    const createDto: CreateOrderProps = {
-      userId: input.userId,
-      total,
-      items: input.items.map((item, i) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        price: products[i]!.price,
-      })),
-    };
+      for (const item of input.items) {
+        const product = productMap.get(item.productId);
+        if (!product) throw new ProductNotFoundError(item.productId);
+        if (product.stock < item.quantity) {
+          throw new InsufficientStockError(item.productId);
+        }
+      }
 
-    const order = await this.orderRepo.create(createDto);
+      for (const item of input.items) {
+        const updated = await this.productRepo.updateStockIfEnough(
+          item.productId,
+          item.quantity
+        );
 
-    return {
-      id: order.id,
-      userId: order.userId,
-      total: order.total,
-      createdAt: order.createdAt,
-      items: order.items.map((item) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        price: item.price,
-      })),
-    };
+        if (!updated) {
+          throw new InsufficientStockError(item.productId);
+        }
+      }
+
+      const itemsWithPrice = input.items.map((item) => {
+        const product = productMap.get(item.productId)!;
+        return {
+          productId: item.productId,
+          quantity: item.quantity,
+          price: product.price,
+        };
+      });
+
+      const total = itemsWithPrice.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+
+      const order = await this.orderRepo.create({
+        userId: input.userId,
+        total,
+        items: itemsWithPrice,
+      });
+
+      return {
+        id: order.id,
+        userId: order.userId,
+        total: order.total,
+        createdAt: order.createdAt,
+        items: order.items.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      };
+    });
   }
 }

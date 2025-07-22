@@ -1,4 +1,5 @@
 import { Context } from "@/main/context";
+import { createOrderSchema } from "@/presentation/validators/CreateOrderSchema";
 
 export const OrderResolver = {
   Mutation: {
@@ -15,6 +16,14 @@ export const OrderResolver = {
       },
       { useCases }: Context
     ) => {
+      const result = createOrderSchema.safeParse(args.input);
+
+      if (!result.success) {
+        throw new Error(
+          "Invalid input: " + JSON.stringify(result.error.format())
+        );
+      }
+
       return useCases.createOrder.execute(args.input);
     },
   },

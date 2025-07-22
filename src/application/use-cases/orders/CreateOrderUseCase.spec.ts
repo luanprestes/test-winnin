@@ -1,6 +1,7 @@
 import { CreateOrderUseCase } from "@/application/use-cases/orders/CreateOrderUseCase";
 import { OrderRepository } from "@/domain/repositories/OrderRepository";
 import { ProductRepository } from "@/domain/repositories/ProductRepository";
+import { Transactional } from "@/domain/repositories/Transactional";
 import { CreateOrderInput } from "@/application/dtos/CreateOrderInput";
 import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
 import { InsufficientStockError } from "@/application/errors/InsufficientStockError";
@@ -19,9 +20,19 @@ describe("CreateOrderUseCase", () => {
     create: jest.fn(),
     findById: jest.fn(),
     updateStock: jest.fn(),
+    findManyByIds: jest.fn(),
+    updateStockIfEnough: jest.fn(),
   };
 
-  const useCase = new CreateOrderUseCase(mockOrderRepo, mockProductRepo);
+  const mockTransactional: jest.Mocked<Transactional> = {
+    runInTransaction: jest.fn(),
+  };
+
+  const useCase = new CreateOrderUseCase(
+    mockOrderRepo,
+    mockProductRepo,
+    mockTransactional
+  );
 
   it("deve criar um pedido com sucesso", async () => {
     const input: CreateOrderInput = {
@@ -32,25 +43,14 @@ describe("CreateOrderUseCase", () => {
       ],
     };
 
-    mockProductRepo.findById
-      .mockResolvedValueOnce({
-        id: 101,
-        name: "Produto A",
-        price: 50,
-        stock: 5,
-        createdAt: new Date(),
-      })
-      .mockResolvedValueOnce({
-        id: 102,
-        name: "Produto B",
-        price: 100,
-        stock: 3,
-        createdAt: new Date(),
-      });
-
-    mockProductRepo.updateStock.mockResolvedValue();
-
     const mockDate = new Date();
+
+    mockProductRepo.findManyByIds.mockResolvedValue([
+      { id: 101, name: "Produto A", price: 50, stock: 5, createdAt: mockDate },
+      { id: 102, name: "Produto B", price: 100, stock: 3, createdAt: mockDate },
+    ]);
+
+    mockProductRepo.updateStockIfEnough.mockResolvedValue(true);
     mockOrderRepo.create.mockResolvedValue({
       id: 1,
       userId: 1,
@@ -60,6 +60,10 @@ describe("CreateOrderUseCase", () => {
         { id: 1, orderId: 1, productId: 101, quantity: 2, price: 50 },
         { id: 2, orderId: 1, productId: 102, quantity: 1, price: 100 },
       ],
+    });
+
+    mockTransactional.runInTransaction.mockImplementation(async (fn) => {
+      return await fn();
     });
 
     const result = await useCase.execute(input);
@@ -75,46 +79,78 @@ describe("CreateOrderUseCase", () => {
       ],
     });
 
-    expect(mockProductRepo.findById).toHaveBeenCalledTimes(2);
-    expect(mockProductRepo.updateStock).toHaveBeenCalledTimes(2);
+    expect(mockProductRepo.findManyByIds).toHaveBeenCalledWith([101, 102]);
+    expect(mockProductRepo.updateStockIfEnough).toHaveBeenCalledTimes(2);
     expect(mockOrderRepo.create).toHaveBeenCalled();
+    expect(mockTransactional.runInTransaction).toHaveBeenCalled();
   });
 
-  it("deve lançar ProductNotFoundError se produto não existir", async () => {
+  it("deve lançar ProductNotFoundError se algum produto não for encontrado", async () => {
     const input: CreateOrderInput = {
       userId: 1,
       items: [{ productId: 999, quantity: 1 }],
     };
 
-    mockProductRepo.findById.mockResolvedValue(null);
+    mockProductRepo.findManyByIds.mockResolvedValue([]);
 
-    await expect(useCase.execute(input)).rejects.toBeInstanceOf(
-      ProductNotFoundError
-    );
+    mockTransactional.runInTransaction.mockImplementation(async (fn) => {
+      return await fn();
+    });
+
     await expect(useCase.execute(input)).rejects.toThrow(
-      "Product with ID 999 not found"
+      new ProductNotFoundError(999)
     );
   });
 
-  it("deve lançar InsufficientStockError se não tiver estoque", async () => {
+  it("deve lançar InsufficientStockError se não tiver estoque suficiente", async () => {
     const input: CreateOrderInput = {
       userId: 1,
       items: [{ productId: 101, quantity: 10 }],
     };
 
-    mockProductRepo.findById.mockResolvedValue({
-      id: 101,
-      name: "Produto A",
-      price: 50,
-      stock: 5,
-      createdAt: new Date(),
+    mockProductRepo.findManyByIds.mockResolvedValue([
+      {
+        id: 101,
+        name: "Produto A",
+        price: 50,
+        stock: 5,
+        createdAt: new Date(),
+      },
+    ]);
+
+    mockTransactional.runInTransaction.mockImplementation(async (fn) => {
+      return await fn();
     });
 
-    await expect(useCase.execute(input)).rejects.toBeInstanceOf(
-      InsufficientStockError
-    );
     await expect(useCase.execute(input)).rejects.toThrow(
-      "Insufficient stock for product 101"
+      new InsufficientStockError(101)
+    );
+  });
+
+  it("deve lançar InsufficientStockError se updateStockIfEnough retornar false", async () => {
+    const input: CreateOrderInput = {
+      userId: 1,
+      items: [{ productId: 101, quantity: 2 }],
+    };
+
+    mockProductRepo.findManyByIds.mockResolvedValue([
+      {
+        id: 101,
+        name: "Produto A",
+        price: 50,
+        stock: 5,
+        createdAt: new Date(),
+      },
+    ]);
+
+    mockProductRepo.updateStockIfEnough.mockResolvedValue(false);
+
+    mockTransactional.runInTransaction.mockImplementation(async (fn) => {
+      return await fn();
+    });
+
+    await expect(useCase.execute(input)).rejects.toThrow(
+      new InsufficientStockError(101)
     );
   });
 });

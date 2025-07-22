@@ -6,47 +6,44 @@ import { OrderItem } from "@/domain/entities/OrderItem";
 export class PrismaOrderRepository implements OrderRepository {
   async create(order: Order): Promise<Order> {
     return await prisma.$transaction(async (tx) => {
-      const products = await tx.product.findMany({
-        where: {
-          id: { in: order.items.map((item) => item.productId) },
-        },
-      });
-
-      const productMap = new Map(products.map((p) => [p.id, p]));
+      const itemsWithPrice: {
+        productId: number;
+        quantity: number;
+        price: number;
+      }[] = [];
 
       for (const item of order.items) {
-        const product = productMap.get(item.productId);
+        const updated = await tx.product.updateMany({
+          where: {
+            id: item.productId,
+            stock: {
+              gte: item.quantity,
+            },
+          },
+          data: {
+            stock: { decrement: item.quantity },
+          },
+        });
 
-        if (!product) {
-          throw new Error(`Produto ${item.productId} não encontrado`);
-        }
-
-        if (product.stock < item.quantity) {
+        if (updated.count === 0) {
           throw new Error(
             `Estoque insuficiente para o produto ${item.productId}`
           );
         }
-      }
 
-      await Promise.all(
-        order.items.map((item) =>
-          tx.product.update({
-            where: { id: item.productId },
-            data: {
-              stock: { decrement: item.quantity },
-            },
-          })
-        )
-      );
+        const product = await tx.product.findUnique({
+          where: { id: item.productId },
+        });
 
-      const itemsWithPrice = order.items.map((item) => {
-        const product = productMap.get(item.productId)!;
-        return {
+        if (!product)
+          throw new Error(`Produto ${item.productId} não encontrado`);
+
+        itemsWithPrice.push({
           productId: item.productId,
           quantity: item.quantity,
           price: product.price.toNumber(),
-        };
-      });
+        });
+      }
 
       const total = itemsWithPrice.reduce(
         (sum, item) => sum + item.price * item.quantity,
