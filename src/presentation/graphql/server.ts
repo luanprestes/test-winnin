@@ -1,7 +1,7 @@
-import { ApolloServer } from "apollo-server";
-import { typeDefs } from "@/presentation/graphql/schemas";
-import { resolvers } from "@/presentation/graphql/resolvers";
-import { Context } from "@/main/context";
+import { ApolloServer } from 'apollo-server';
+import { typeDefs } from '@/presentation/graphql/schemas';
+import { resolvers } from '@/presentation/graphql/resolvers';
+import { Context } from '@/main/context';
 
 export async function startServer(context: Context) {
   const server = new ApolloServer({

@@ -1,12 +1,12 @@
-import { CreateOrderUseCase } from "@/application/use-cases/orders/CreateOrderUseCase";
-import { OrderRepository } from "@/domain/repositories/OrderRepository";
-import { ProductRepository } from "@/domain/repositories/ProductRepository";
-import { Transactional } from "@/domain/repositories/Transactional";
-import { CreateOrderInput } from "@/application/dtos/CreateOrderInput";
-import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
-import { InsufficientStockError } from "@/application/errors/InsufficientStockError";
+import { CreateOrderUseCase } from '@/application/use-cases/orders/CreateOrderUseCase';
+import { OrderRepository } from '@/domain/repositories/OrderRepository';
+import { ProductRepository } from '@/domain/repositories/ProductRepository';
+import { Transactional } from '@/domain/repositories/Transactional';
+import { CreateOrderInput } from '@/application/dtos/CreateOrderInput';
+import { ProductNotFoundError } from '@/application/errors/ProductNotFoundError';
+import { InsufficientStockError } from '@/application/errors/InsufficientStockError';
 
-describe("CreateOrderUseCase", () => {
+describe('CreateOrderUseCase', () => {
   const mockOrderRepo: jest.Mocked<OrderRepository> = {
     create: jest.fn(),
     findAll: jest.fn(),
@@ -31,10 +31,10 @@ describe("CreateOrderUseCase", () => {
   const useCase = new CreateOrderUseCase(
     mockOrderRepo,
     mockProductRepo,
-    mockTransactional
+    mockTransactional,
   );
 
-  it("deve criar um pedido com sucesso", async () => {
+  it('deve criar um pedido com sucesso', async () => {
     const input: CreateOrderInput = {
       userId: 1,
       items: [
@@ -46,8 +46,8 @@ describe("CreateOrderUseCase", () => {
     const mockDate = new Date();
 
     mockProductRepo.findManyByIds.mockResolvedValue([
-      { id: 101, name: "Produto A", price: 50, stock: 5, createdAt: mockDate },
-      { id: 102, name: "Produto B", price: 100, stock: 3, createdAt: mockDate },
+      { id: 101, name: 'Produto A', price: 50, stock: 5, createdAt: mockDate },
+      { id: 102, name: 'Produto B', price: 100, stock: 3, createdAt: mockDate },
     ]);
 
     mockProductRepo.updateStockIfEnough.mockResolvedValue(true);
@@ -85,7 +85,7 @@ describe("CreateOrderUseCase", () => {
     expect(mockTransactional.runInTransaction).toHaveBeenCalled();
   });
 
-  it("deve lançar ProductNotFoundError se algum produto não for encontrado", async () => {
+  it('deve lançar ProductNotFoundError se algum produto não for encontrado', async () => {
     const input: CreateOrderInput = {
       userId: 1,
       items: [{ productId: 999, quantity: 1 }],
@@ -98,11 +98,11 @@ describe("CreateOrderUseCase", () => {
     });
 
     await expect(useCase.execute(input)).rejects.toThrow(
-      new ProductNotFoundError(999)
+      new ProductNotFoundError(999),
     );
   });
 
-  it("deve lançar InsufficientStockError se não tiver estoque suficiente", async () => {
+  it('deve lançar InsufficientStockError se não tiver estoque suficiente', async () => {
     const input: CreateOrderInput = {
       userId: 1,
       items: [{ productId: 101, quantity: 10 }],
@@ -111,7 +111,7 @@ describe("CreateOrderUseCase", () => {
     mockProductRepo.findManyByIds.mockResolvedValue([
       {
         id: 101,
-        name: "Produto A",
+        name: 'Produto A',
         price: 50,
         stock: 5,
         createdAt: new Date(),
@@ -123,11 +123,11 @@ describe("CreateOrderUseCase", () => {
     });
 
     await expect(useCase.execute(input)).rejects.toThrow(
-      new InsufficientStockError(101)
+      new InsufficientStockError(101),
     );
   });
 
-  it("deve lançar InsufficientStockError se updateStockIfEnough retornar false", async () => {
+  it('deve lançar InsufficientStockError se updateStockIfEnough retornar false', async () => {
     const input: CreateOrderInput = {
       userId: 1,
       items: [{ productId: 101, quantity: 2 }],
@@ -136,7 +136,7 @@ describe("CreateOrderUseCase", () => {
     mockProductRepo.findManyByIds.mockResolvedValue([
       {
         id: 101,
-        name: "Produto A",
+        name: 'Produto A',
         price: 50,
         stock: 5,
         createdAt: new Date(),
@@ -150,7 +150,7 @@ describe("CreateOrderUseCase", () => {
     });
 
     await expect(useCase.execute(input)).rejects.toThrow(
-      new InsufficientStockError(101)
+      new InsufficientStockError(101),
     );
   });
 });

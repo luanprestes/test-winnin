@@ -1,5 +1,5 @@
-import { OrderItem } from "@/domain/entities/OrderItem";
-import { OrderRepository } from "@/domain/repositories/OrderRepository";
+import { OrderItem } from '@/domain/entities/OrderItem';
+import { OrderRepository } from '@/domain/repositories/OrderRepository';
 
 export class FindOrderItemsByOrderIdUseCase {
   constructor(private readonly orderRepository: OrderRepository) {}

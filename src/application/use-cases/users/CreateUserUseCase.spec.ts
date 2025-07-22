@@ -1,8 +1,8 @@
-import { CreateUserUseCase } from "@/application/use-cases/users/CreateUserUseCase";
-import { UserRepository } from "@/domain/repositories/UserRepository";
-import { User } from "@/domain/entities/User";
+import { CreateUserUseCase } from '@/application/use-cases/users/CreateUserUseCase';
+import { UserRepository } from '@/domain/repositories/UserRepository';
+import { User } from '@/domain/entities/User';
 
-describe("CreateUserUseCase", () => {
+describe('CreateUserUseCase', () => {
   const mockUserRepo = {
     create: jest.fn(),
     findAll: jest.fn(),
@@ -13,10 +13,10 @@ describe("CreateUserUseCase", () => {
 
   const useCase = new CreateUserUseCase(mockUserRepo);
 
-  it("deve criar um novo usuário com os dados fornecidos", async () => {
+  it('deve criar um novo usuário com os dados fornecidos', async () => {
     const input = {
-      name: "Maria",
-      email: "maria@teste.com",
+      name: 'Maria',
+      email: 'maria@teste.com',
     };
 
     const createdUser: User = {

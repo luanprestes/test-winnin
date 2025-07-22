@@ -1,5 +1,5 @@
-import { ProductRepository } from "@/domain/repositories/ProductRepository";
-import { Product } from "@/domain/entities/Product";
+import { ProductRepository } from '@/domain/repositories/ProductRepository';
+import { Product } from '@/domain/entities/Product';
 
 interface Input {
   name: string;

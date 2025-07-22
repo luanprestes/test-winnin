@@ -1,7 +1,7 @@
-import { prisma } from "./client";
-import { OrderRepository } from "@/domain/repositories/OrderRepository";
-import { Order } from "@/domain/entities/Order";
-import { OrderItem } from "@/domain/entities/OrderItem";
+import { prisma } from './client';
+import { OrderRepository } from '@/domain/repositories/OrderRepository';
+import { Order } from '@/domain/entities/Order';
+import { OrderItem } from '@/domain/entities/OrderItem';
 
 export class PrismaOrderRepository implements OrderRepository {
   async create(order: Order): Promise<Order> {
@@ -27,7 +27,7 @@ export class PrismaOrderRepository implements OrderRepository {
 
         if (updated.count === 0) {
           throw new Error(
-            `Estoque insuficiente para o produto ${item.productId}`
+            `Estoque insuficiente para o produto ${item.productId}`,
           );
         }
 
@@ -47,7 +47,7 @@ export class PrismaOrderRepository implements OrderRepository {
 
       const total = itemsWithPrice.reduce(
         (sum, item) => sum + item.price * item.quantity,
-        0
+        0,
       );
 
       const created = await tx.order.create({

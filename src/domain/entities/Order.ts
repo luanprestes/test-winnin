@@ -1,4 +1,4 @@
-import { OrderItem } from "./OrderItem";
+import { OrderItem } from './OrderItem';
 
 export type Order = {
   id: number;

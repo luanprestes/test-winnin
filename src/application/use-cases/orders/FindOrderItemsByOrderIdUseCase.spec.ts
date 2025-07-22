@@ -1,8 +1,8 @@
-import { FindOrderItemsByOrderIdUseCase } from "@/application/use-cases/orders/FindOrderItemsByOrderIdUseCase";
-import { OrderRepository } from "@/domain/repositories/OrderRepository";
-import { OrderItem } from "@/domain/entities/OrderItem";
+import { FindOrderItemsByOrderIdUseCase } from '@/application/use-cases/orders/FindOrderItemsByOrderIdUseCase';
+import { OrderRepository } from '@/domain/repositories/OrderRepository';
+import { OrderItem } from '@/domain/entities/OrderItem';
 
-describe("FindOrderItemsByOrderIdUseCase", () => {
+describe('FindOrderItemsByOrderIdUseCase', () => {
   const mockOrderRepo: jest.Mocked<OrderRepository> = {
     findItemsByOrderId: jest.fn(),
     findAll: jest.fn(),
@@ -13,7 +13,7 @@ describe("FindOrderItemsByOrderIdUseCase", () => {
 
   const useCase = new FindOrderItemsByOrderIdUseCase(mockOrderRepo);
 
-  it("deve retornar os itens de um pedido", async () => {
+  it('deve retornar os itens de um pedido', async () => {
     const orderId = 1;
 
     const items: OrderItem[] = [

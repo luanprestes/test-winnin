@@ -1,8 +1,8 @@
-import { CreateProductUseCase } from "@/application/use-cases/products/CreateProductUseCase";
-import { ProductRepository } from "@/domain/repositories/ProductRepository";
-import { Product } from "@/domain/entities/Product";
+import { CreateProductUseCase } from '@/application/use-cases/products/CreateProductUseCase';
+import { ProductRepository } from '@/domain/repositories/ProductRepository';
+import { Product } from '@/domain/entities/Product';
 
-describe("CreateProductUseCase", () => {
+describe('CreateProductUseCase', () => {
   const mockProductRepo = {
     findAll: jest.fn(),
     create: jest.fn(),
@@ -11,9 +11,9 @@ describe("CreateProductUseCase", () => {
 
   const useCase = new CreateProductUseCase(mockProductRepo);
 
-  it("deve criar um novo produto com os dados fornecidos", async () => {
+  it('deve criar um novo produto com os dados fornecidos', async () => {
     const input = {
-      name: "Produto Teste",
+      name: 'Produto Teste',
       price: 199.99,
       stock: 10,
     };

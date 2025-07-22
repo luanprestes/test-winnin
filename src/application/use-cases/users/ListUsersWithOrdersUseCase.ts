@@ -1,10 +1,10 @@
-import { UserRepository } from "@/domain/repositories/UserRepository";
-import { OrderRepository } from "@/domain/repositories/OrderRepository";
+import { UserRepository } from '@/domain/repositories/UserRepository';
+import { OrderRepository } from '@/domain/repositories/OrderRepository';
 
 export class ListUsersWithOrdersUseCase {
   constructor(
     private userRepo: UserRepository,
-    private orderRepo: OrderRepository
+    private orderRepo: OrderRepository,
   ) {}
 
   async execute() {

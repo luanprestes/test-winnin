@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 
 services:
   db:
@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: fictitious_order_system
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
 
@@ -21,7 +21,7 @@ services:
     container_name: fictitious_order_system_backend
     restart: always
     ports:
-      - "4000:4000"
+      - '4000:4000'
     volumes:
       - .:/app
     env_file:

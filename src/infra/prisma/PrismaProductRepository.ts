@@ -1,8 +1,8 @@
-import { prisma } from "./client";
-import { ProductRepository } from "@/domain/repositories/ProductRepository";
-import { Product } from "@/domain/entities/Product";
+import { prisma } from './client';
+import { ProductRepository } from '@/domain/repositories/ProductRepository';
+import { Product } from '@/domain/entities/Product';
 
-const mapToEntity = (product: any): Product => ({
+const mapToEntity = (product: never): Product => ({
   id: product.id,
   name: product.name,
   price: product.price.toNumber(),
@@ -11,7 +11,7 @@ const mapToEntity = (product: any): Product => ({
 });
 
 export class PrismaProductRepository implements ProductRepository {
-  async create(data: Omit<Product, "id" | "createdAt">): Promise<Product> {
+  async create(data: Omit<Product, 'id' | 'createdAt'>): Promise<Product> {
     const product = await prisma.product.create({
       data,
       select: {
@@ -64,7 +64,7 @@ export class PrismaProductRepository implements ProductRepository {
 
   async updateStockIfEnough(
     productId: number,
-    quantity: number
+    quantity: number,
   ): Promise<boolean> {
     const result = await prisma.product.updateMany({
       where: {

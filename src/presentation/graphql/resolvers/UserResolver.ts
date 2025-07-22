@@ -1,5 +1,5 @@
-import { Context } from "@/main/context";
-import { createUserSchema } from "@/presentation/validators/CreateUserSchema";
+import { Context } from '@/main/context';
+import { createUserSchema } from '@/presentation/validators/CreateUserSchema';
 
 export const UserResolver = {
   Query: {
@@ -12,13 +12,13 @@ export const UserResolver = {
     createUser: async (
       _: unknown,
       args: { input: { name: string; email: string } },
-      { useCases }: Context
+      { useCases }: Context,
     ) => {
       const result = createUserSchema.safeParse(args.input);
 
       if (!result.success) {
         throw new Error(
-          "Invalid input: " + JSON.stringify(result.error.format())
+          'Invalid input: ' + JSON.stringify(result.error.format()),
         );
       }
 
@@ -30,7 +30,7 @@ export const UserResolver = {
     orders: async (
       parent: { id: number },
       _: unknown,
-      { useCases }: Context
+      { useCases }: Context,
     ) => {
       return useCases.findOrdersByUserId.execute(parent.id);
     },

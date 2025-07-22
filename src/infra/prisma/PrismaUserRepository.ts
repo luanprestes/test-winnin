@@ -1,6 +1,6 @@
-import { prisma } from "./client";
-import { UserRepository } from "@/domain/repositories/UserRepository";
-import { User } from "@/domain/entities/User";
+import { prisma } from './client';
+import { UserRepository } from '@/domain/repositories/UserRepository';
+import { User } from '@/domain/entities/User';
 
 export class PrismaUserRepository implements UserRepository {
   async create(data: { name: string; email: string }): Promise<User> {

@@ -1,8 +1,8 @@
-import { FindUserByIdUseCase } from "@/application/use-cases/users/FindUserByIdUseCase";
-import { User } from "@/domain/entities/User";
-import { UserRepository } from "@/domain/repositories/UserRepository";
+import { FindUserByIdUseCase } from '@/application/use-cases/users/FindUserByIdUseCase';
+import { User } from '@/domain/entities/User';
+import { UserRepository } from '@/domain/repositories/UserRepository';
 
-describe("FindUserByIdUseCase", () => {
+describe('FindUserByIdUseCase', () => {
   const mockUserRepo = {
     findAll: jest.fn(),
     create: jest.fn(),
@@ -13,11 +13,11 @@ describe("FindUserByIdUseCase", () => {
 
   const useCase = new FindUserByIdUseCase(mockUserRepo);
 
-  it("deve retornar um usuário se encontrado pelo ID", async () => {
+  it('deve retornar um usuário se encontrado pelo ID', async () => {
     const mockUser: User = {
       id: 1,
-      name: "Luan",
-      email: "luan@teste.com",
+      name: 'Luan',
+      email: 'luan@teste.com',
       createdAt: new Date(),
     };
 
@@ -29,7 +29,7 @@ describe("FindUserByIdUseCase", () => {
     expect(result).toEqual(mockUser);
   });
 
-  it("deve retornar null se o usuário não for encontrado", async () => {
+  it('deve retornar null se o usuário não for encontrado', async () => {
     mockUserRepo.findById.mockResolvedValue(null);
 
     const result = await useCase.execute(999);

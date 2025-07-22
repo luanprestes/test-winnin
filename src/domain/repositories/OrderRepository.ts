@@ -1,5 +1,5 @@
-import { Order, CreateOrderProps } from "../entities/Order";
-import { OrderItem } from "../entities/OrderItem";
+import { Order, CreateOrderProps } from '../entities/Order';
+import { OrderItem } from '../entities/OrderItem';
 
 export interface OrderRepository {
   create(data: CreateOrderProps): Promise<Order>;

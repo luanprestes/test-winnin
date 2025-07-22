@@ -1,6 +1,6 @@
-import { ListUsersWithOrdersUseCase } from "@/application/use-cases/users/ListUsersWithOrdersUseCase";
+import { ListUsersWithOrdersUseCase } from '@/application/use-cases/users/ListUsersWithOrdersUseCase';
 
-describe("ListUsersWithOrdersUseCase", () => {
+describe('ListUsersWithOrdersUseCase', () => {
   const mockUserRepo = {
     findAll: jest.fn().mockResolvedValue([]),
     create: jest.fn(),
@@ -19,18 +19,18 @@ describe("ListUsersWithOrdersUseCase", () => {
 
   const useCase = new ListUsersWithOrdersUseCase(mockUserRepo, mockOrderRepo);
 
-  it("deve retornar usuários com seus pedidos", async () => {
+  it('deve retornar usuários com seus pedidos', async () => {
     mockUserRepo.findAll.mockResolvedValue([
       {
         id: 1,
-        name: "Luan",
-        email: "luan@teste.com",
+        name: 'Luan',
+        email: 'luan@teste.com',
         createdAt: new Date(),
       },
       {
         id: 2,
-        name: "Joana",
-        email: "joana@teste.com",
+        name: 'Joana',
+        email: 'joana@teste.com',
         createdAt: new Date(),
       },
     ]);

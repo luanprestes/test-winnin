@@ -1,8 +1,8 @@
-import { FindProductByIdUseCase } from "@/application/use-cases/products/FindProductByIdUseCase";
-import { ProductRepository } from "@/domain/repositories/ProductRepository";
-import { Product } from "@/domain/entities/Product";
+import { FindProductByIdUseCase } from '@/application/use-cases/products/FindProductByIdUseCase';
+import { ProductRepository } from '@/domain/repositories/ProductRepository';
+import { Product } from '@/domain/entities/Product';
 
-describe("FindProductByIdUseCase", () => {
+describe('FindProductByIdUseCase', () => {
   const mockProductRepo = {
     findAll: jest.fn(),
     create: jest.fn(),
@@ -11,10 +11,10 @@ describe("FindProductByIdUseCase", () => {
 
   const useCase = new FindProductByIdUseCase(mockProductRepo);
 
-  it("deve retornar o produto quando encontrado pelo ID", async () => {
+  it('deve retornar o produto quando encontrado pelo ID', async () => {
     const mockProduct: Product = {
       id: 1,
-      name: "Produto Teste",
+      name: 'Produto Teste',
       price: 123.45,
       createdAt: new Date(),
       stock: 0,
@@ -28,7 +28,7 @@ describe("FindProductByIdUseCase", () => {
     expect(result).toEqual(mockProduct);
   });
 
-  it("deve retornar null quando o produto não for encontrado", async () => {
+  it('deve retornar null quando o produto não for encontrado', async () => {
     mockProductRepo.findById.mockResolvedValue(null);
 
     const result = await useCase.execute(999);
