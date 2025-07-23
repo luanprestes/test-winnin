@@ -1,3 +1,4 @@
+import { EmailAlreadyInUseError } from '@/application/errors/EmailAlreadyInUseError';
 import { Context } from '@/main/context';
 import { createUserSchema } from '@/presentation/validators/CreateUserSchema';
 
@@ -22,7 +23,15 @@ export const UserResolver = {
         );
       }
 
-      return useCases.createUser.execute(args.input);
+      try {
+        return useCases.createUser.execute(args.input);
+      } catch (err) {
+        if (err instanceof EmailAlreadyInUseError) {
+          throw new Error(err.message);
+        }
+
+        throw new Error('Erro interno ao criar usuário.');
+      }
     },
   },
 

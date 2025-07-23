@@ -1,8 +1,9 @@
 import { prisma } from './client';
 import { ProductRepository } from '@/domain/repositories/ProductRepository';
 import { Product } from '@/domain/entities/Product';
+import { Product as ProductPrisma } from '@prisma/client';
 
-const mapToEntity = (product: never): Product => ({
+const mapToEntity = (product: ProductPrisma): Product => ({
   id: product.id,
   name: product.name,
   price: product.price.toNumber(),
